@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+
+    <meta charset="UTF-8">
+    <title>ReadContract</title>
+    <script type="text/javascript" src="instascan.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src = "web3.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        .alert {
+            padding: 15px;
+            border: 1px solid #d6e9c6;
+            border-radius: 4px;
+            color: #3c763d;
+            background-color: #dff0d8;
+        }
+    </style>
+
+    <style>
+        .bal {
+            padding: 15px;
+            border: 1px solid #d6e9c6;
+            border-radius: 4px;
+            color: #104876;
+            background-color: deepskyblue;
+            width: 200px;
+
+        }
+    </style>
+
+    <style>
+        .efir {
+            padding: 15px;
+            border: 1px solid #d6e9c6;
+            border-radius: 4px;
+            color: #104876;
+            background-color: deepskyblue;
+            width: 100px;
+            left: 250px;
+        }
+    </style>
+
+    <style>
+        .prokrutka {
+            height: 250px; /* высота нашего блока */
+    8        background: #fff; /* цвет фона, белый */
+            border: 1px solid #C1C1C1; /* размер и цвет границы блока */
+            overflow-y: scroll; /* прокрутка по вертикали */
+        }
+    </style>
+
+    <style>
+        .qr-code {
+            max-width: 200px;
+            margin: 10px;
+        }
+    </style>
+
+
+    <nav>
+        <div class="nav-wrapper">
+            <img class="col s1" style="width: 175px; height: 150px; float: left" src="b_coin_3.jpg">
+            <a href="#" class="brand-logo">Wallet for operations with BNS tokens</a>
+
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a href="BNS_whitepaper.pdf">White paper</a></li>
+                <li><a href="https://etherscan.io/address/0x362dcc7187cf0c47be45695549c6b4fb96c08875">EtherScan</a></li>
+                <li><a href="index.html">Wallet</a></li>
+            </ul>
+        </div>
+    </nav>
+<hr>
+    <nav>
+        <div class="nav-wrapper">
+            
+            <a href="#owner_" class="brand-logo">Owner and Admin function</a>
+
+            <ul id="nav-mobile1" class="right hide-on-med-and-down">
+                <li><a href="#mint">Mint Tokens to clients</a></li>
+                <li><a href="#ADmembr">Add / Delete member</a></li>
+                <li><a href="#memb">List of member</a></li>
+            </ul>
+        </div>
+    </nav>
+
+<script>
+$(document).ready(function() {
+
+$('body').append('<div class="button-up" style="display: none;opacity: 0.7;width: 100px;height:100%;position: fixed;right: 0px;top: 0px;cursor: pointer;text-align: center;line-height: 100px;color: #45688E;">^ Up </div>');
+
+$ (window).scroll (function () {
+if ($ (this).scrollTop () > 200) {
+$ ('.button-up').fadeIn();
+} else {
+$ ('.button-up').fadeOut();
+}
+});
+
+$('.button-up').click(function(){
+$('body,html').animate({
+scrollTop: 0
+}, 100);
+return false;
+});
+
+$('.button-up').hover(function() {
+$(this).animate({
+'opacity':'1',
+}).css({'background-color':'#E1E7ED','color':'#45688E'});
+}, function(){
+$(this).animate({
+'opacity':'0.7'
+}).css({'background':'none','color':'#45688E'});;
+});
+
+});
+</script>
+
+    <div class="row">
+
+        <div class="alert col s5"> Your account in Ethereum blockchain</div>
+        <div class="alert col s5" id="useAccount"></div>
+
+    </div>
+
+    <div>
+        <img id="qrcode" src="https://chart.googleapis.com/chart?cht=qr&chl=Hello+World&chs=160x160&chld=L|0"
+             class="qr-code img-thumbnail img-responsive" style="float:left">
+    </div>
+
+    <div>
+        <script type="text/javascript" src="https://files.coinmarketcap.com/static/widget/currency.js"></script>
+        <div style="width:200px; float:left">
+            <div class="coinmarketcap-currency-widget" data-currency="ethereum" data-base="USD" data-secondary="EuR" data-ticker="true" data-rank="true" data-marketcap="true" data-volume="true" data-stats="USD" data-statsticker="false"></div>
+        </div>
+
+        <div class="row bal">
+            <div> Your balance : </div>
+            <hr>
+            <div id="balanceEth"> </div>
+            <label for="balanceEth">ETHER</label>
+            <div id="balanceToken"> </div>
+            <label for="balanceToken">BNS TOKEN</label>
+        </div>
+        <hr>
+        <h5>Send BNS tokens to another address</h5> <br>
+            <i class="small material-icons btn start">camera_alt</i>
+            <i class="small material-icons btn stop">cancel</i>
+        <div class="row">
+            <video id="preview"></video>
+            <div class="input-field col s5">
+                <input placeholder="0x00" id="addressTo" type="text" class="validate">
+                <label for="addressTo">Address to</label>
+            </div>
+            <div class="input-field col s1">
+                <input placeholder="123.000" id="value" type="text" class="validate">
+                <label for="value">Amount Tokens</label>
+            </div>
+            <div class="waves-effect waves-light btn sendButton col s2" style="cursor: pointer; background-color: #80d8ff;">
+                SendToken </div><br>
+
+        </div>
+
+        <hr>
+        <h5>Buy and sell a BNS token through the price of the contract</h5> <br>
+        <div class="row">
+            <div id="aaa"></div> <div> Tokens For 1 (one) Ether</div>
+        </div>
+
+
+        <div class="row">
+            <div class="input-field col s3">
+                <input placeholder="123.000" id="inputEther" type="text" class="validate">
+                <label for="inputEther">Amount to purchase in Ether</label>
+            </div>
+
+            <div class="waves-effect waves-light btn buyButton" style="cursor: pointer; background-color: #32ff4d;">
+                BuyToken </div>
+
+        </div>
+
+        <div id="bbb"></div> <div> Tokens For 1 (one) Ether</div>
+
+        <div class="row">
+            <div class="input-field col s3">
+                <input placeholder="123.000" id="inputToken" type="text" class="validate">
+                <label for="inputToken">Amount to purchase in Token !! enter only INTEGER</label>
+            </div>
+
+            <div class="waves-effect waves-light btn sellButton" style="cursor: pointer; background-color: #ff5722;">
+                SellToken </div>
+        </div>
+
+
+
+    </div>
+
+        <hr>
+        <h5>List of transactions From or To your account</h5> <br>
+        <div class="waves-effect waves-light btn historyButton" style="cursor: pointer; background-color: #ff5722;">
+                History tran </div>
+        <div class="prokrutka">
+            <table id="tab">
+                <tr><th>From :</th><th> To :</th><th>Value :</th></tr> <!--ряд с ячейками заголовков-->
+                <tbody id="oper">
+                </tbody>
+            </table>
+        </div>
+
+
+
+        <div class="row">
+            <div class="alert" id="owner_"></div> <div> Owner of contract</div>
+        </div>
+        
+        <div class="row">
+            <div class="alert" id="admin_"></div> <div> Settlement system Admin</div>
+        </div>
+
+
+        <hr>
+        <h5 id="mint">Mint Tokens to client</h5> <br>
+            <i class="small material-icons btn start1">camera_alt</i>
+            <i class="small material-icons btn stop1">cancel</i>
+        <div class="row">
+            <video id="preview1"></video>
+            <div class="input-field col s5">
+                <input placeholder="0x00" id="addressClient" type="text" class="validate">
+                <label for="addressTo">Address to</label>
+            </div>
+            <div class="input-field col s1">
+                <input placeholder="123.000" id="valueToMint" type="text" class="validate">
+                <label for="value">Amount Tokens</label>
+            </div>
+            <div class="waves-effect waves-light btn mintButton col s2" style="cursor: pointer; background-color: #80d8ff;">
+                MintToken </div><br>
+
+        </div>
+
+        <hr>
+        <h5 id="ADmembr">Add / Delete member</h5> <br>
+        <div class="row">
+            <div class="input-field col s3">
+                <input placeholder="0x00" id="addressMember" type="text" class="validate">
+                <label for="addressTo">Address to</label>
+            </div>
+            <div class="input-field col s2">
+                <input placeholder="Ivan" id="memberName" type="text" class="validate">
+                <label for="value">Name of member</label>
+            </div>
+
+            <!-- Switch -->
+                 <div class="switch">
+                     <label>
+                Delete
+                <input type="checkbox" id='checkbox1'>
+                <span class="lever"></span>
+                Add
+                </label>
+                </div>
+            <div class="waves-effect waves-light btn memberButton" style="cursor: pointer; background-color: #80d8ff;">
+                MEMBER </div><br>
+
+        </div>
+
+        <hr>
+        <h5 id="memb">List of member</h5> <br>
+        <div class="waves-effect waves-light btn memberListButton" style="cursor: pointer; background-color: #ff5722;">
+                Member List </div>
+        <div class="prokrutka">
+            <table id="tab_member">
+                <tr><th>Member Name</th><th> address</th><th> since</th></tr> <!--ряд с ячейками заголовков-->
+                <tbody id="member_list">
+                </tbody>
+            </table>
+        </div>
+
+        <hr>
+
+        <div class="row">
+
+        <div class="alert col s5"> Ether in contract balance</div>
+        <div class="alert col s5" id="etherBal"></div>
+
+        </div>
+
+        <a href="https://etherscan.io/address/0x362dcc7187cf0c47be45695549c6b4fb96c08875">Reference to a BNS contract in EtherScan</a>
+
+        </head>
+<body>
+
+
+<script>
+
+
+
+
+
+    $(document).ready(function() {
+
+        let Web3 = require('web3');
+        if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        }
+        else {
+            alert('You have to install MetaMask !');
+        }
+
+        var accounts = web3.eth.accounts;
+        $("#useAccount").html(accounts);
+
+
+        const abi = [{"constant":false,"inputs":[{"name":"newSellPrice","type":"uint256"},{"name":"newBuyPrice","type":"uint256"}],"name":"setPrices","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"stopSetPrice","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"targetMember","type":"address"}],"name":"removeMember","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"dividend","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"target","type":"address"},{"name":"amount","type":"uint256"}],"name":"robPantry","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_admin","type":"address"}],"name":"adminCreat","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"memberId","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_value","type":"uint256"}],"name":"burn","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"remainPantry","outputs":[{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"sellPrice","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"members","outputs":[{"name":"member","type":"address"},{"name":"name","type":"string"},{"name":"memberSince","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"newAdmin","type":"address"}],"name":"transferAdmin","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"target","type":"address"},{"name":"mintedAmount","type":"uint256"}],"name":"mintToken","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_value","type":"uint256"}],"name":"burnFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"buyPrice","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"client","type":"address"},{"name":"amount","type":"uint256"}],"name":"mintToClient","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"dividendDistribution","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"buy","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"pantryT","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"frozenAccount","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"target","type":"address"},{"name":"amount","type":"uint256"}],"name":"robPantryT","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"targetMember","type":"address"},{"name":"memberName","type":"string"}],"name":"addMember","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"pantry","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"},{"name":"_extraData","type":"bytes"}],"name":"approveAndCall","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"sell","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"target","type":"address"},{"name":"freeze","type":"bool"}],"name":"freezeAccount","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"admin","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"initialSupply","type":"uint256"},{"name":"tokenName","type":"string"},{"name":"tokenSymbol","type":"string"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"target","type":"address"},{"indexed":false,"name":"frozen","type":"bool"}],"name":"FrozenFunds","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"member","type":"address"},{"indexed":false,"name":"isMember","type":"bool"}],"name":"MembershipChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Burn","type":"event"}];
+
+        const contractAddress = "0x362DCC7187cF0C47bE45695549C6b4FB96C08875";
+        let MyContract = web3.eth.contract(abi);
+        let myContractInstance = MyContract.at(contractAddress);
+
+        var acc = accounts.toString();
+
+
+        web3.eth.getBalance(acc, function (err, res) {
+            $("#balanceEth").html(res.toNumber() / 1000000000000000000);
+        });
+
+        myContractInstance.balanceOf(acc, function (err, res) {
+            $("#balanceToken").html(res.toNumber() / 1000000000000000000);
+        });
+
+
+
+
+        myContractInstance.buyPrice.call(function(err, res){
+            console.log(res.toString());
+            $("#aaa").html(res.toString());
+        } );
+
+        myContractInstance.sellPrice.call(function(err, res){
+            console.log(res.toString());
+            var sPrice = res.toNumber();
+            console.log(sPrice);
+            $("#bbb").html(res.toNumber());
+        } );
+
+        myContractInstance.owner.call(function(err, res){
+            console.log(res.toString());
+            if (res.toString() == acc) {
+             $("#owner_").html(res.toString());
+            }
+            else {
+            $("#owner_").html('You do not have the rights - OWNER = ' + res.toString()); }   
+        } );
+
+       myContractInstance.admin.call(function(err, res){
+            console.log(res.toString());
+            if (res.toString() == acc) {
+                $("#admin_").html(res.toString());
+            }
+            else
+            {$("#admin_").html('You do not have the rights - ADMIN = ' + res.toString()); }   
+        } );
+
+        
+
+
+        // Изменение QR
+        $(".qr-code").attr("src", "https://chart.googleapis.com/chart?cht=qr&chl=" + $('<div/>').text(acc).html() + "&chs=160x160&chld=L|0");
+
+
+
+        $(".buyButton").click(function () {
+
+            myContractInstance.buy.sendTransaction({
+                    to: contractAddress,
+                    from: web3.eth.accounts[0],
+                    value: web3.toWei($('#inputEther').val(), "ether")
+                },
+                function (error) {
+                    console.log(error);
+                }
+            );
+
+        });
+
+        $(".sellButton").click(function () {
+            var amoutToSell = $('#inputToken').val();
+            myContractInstance.sell(amoutToSell, {from: web3.eth.accounts[0]},
+                function (err, res) {console.log(res);}
+            );
+        });
+
+        // Для проработки
+        document.getElementById('inputToken').addEventListener('input', function(){
+            document.getElementById('SolEther').value = this.value;
+        });
+
+
+        $(".sendButton").click(function () {
+            var adrTo = $('#addressTo').val();
+            var isAdr = web3.isAddress(adrTo);
+            console.log(isAdr);
+            if (isAdr == true) {
+                var valTo = $('#value').val() * 1000000000000000000;
+                console.log(valTo);
+                myContractInstance.transfer(adrTo, valTo, {from: web3.eth.accounts[0]}, function (err, res) {
+                    console.log(res);
+                });
+            }
+            else {alert ( 'Еhe recipients address is not spelled correctly !');}
+        });
+
+
+        $(".mintButton").click(function () {
+            
+            var adrTo = $('#addressClient').val();
+            var isAdr = web3.isAddress(adrTo);
+            console.log(isAdr);
+            if (isAdr == true) {
+                var valTo = $('#valueToMint').val() * 1000000000000000000;
+                console.log(valTo);
+                myContractInstance.mintToClient(adrTo, valTo, {from: web3.eth.accounts[0]}, function (err, res) {
+                    console.log(res);
+                });
+            }
+            else {alert ( 'Еhe recipients address is not spelled correctly !');}
+        });
+
+
+        
+
+           
+           $(".memberButton").click(function () {
+            
+            var adrTo = $('#addressMember').val();
+            var isAdr = web3.isAddress(adrTo);
+            console.log(isAdr);
+            var check = $('#checkbox1').prop('checked');
+            console.log(check);
+            var NM = $('#memberName').val();
+            console.log(NM);
+
+            if (isAdr == true) {
+                
+                    if (check == true) {
+                        myContractInstance.addMember(adrTo, NM, {from: web3.eth.accounts[0]}, function (err, res) {
+                         console.log(res);
+                        });
+                    }
+                    
+            
+                    else {myContractInstance.removeMember(adrTo, {from: web3.eth.accounts[0]}, function (err, res) {
+                    console.log(res);
+                    }) }
+            }
+
+            else {alert ( 'Еhe recipients address is not spelled correctly !');}
+        });
+        
+
+ $(".historyButton").click(function () {
+
+                myContractInstance.Transfer({}, {fromBlock: 0, toBlock: 'latest'}, function(err, res) {
+            console.log(res);
+            var FROM = res.args.from.toString();
+            var TO = res.args.to.toString();
+            var VAL = web3.fromWei(res.args.value).toNumber();
+                  if (FROM == acc || TO ==acc) {
+                  $('#oper').prepend('<tr><td>' + FROM + '</td><td>' + TO + '</td><td>' + VAL + '</td></tr>');
+                  }
+                })
+            });
+
+            //$(".memberListButton").click(function () {
+               // myContractInstance.members.call(function(err, res){
+           
+            //console.log(res.toString());
+            
+              //   });
+                
+             //   var M = myContractInstance.members(0);
+             //       console.log(M.toString())
+             //   }
+                
+
+            //)
+
+
+
+
+ 
+
+
+
+    });
+
+ 
+
+
+           
+            
+
+
+//</script>
+
+<script type="text/javascript">
+      let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+      scanner.addListener('scan', function (content) {
+        console.log(content);
+        var CCC = content.substring(9);
+        if (web3.isAddress(CCC) == true) {
+            document.getElementById("addressTo").value = content.substring(9);
+
+            scanner.stop();
+        }
+      });
+      
+      $(".start").click (function() {
+      Instascan.Camera.getCameras().then(function (cameras) {
+        if (cameras.length > 0) {
+          scanner.start(cameras[0]);
+        } else {
+          console.error('No cameras found.');
+        }
+      }).catch(function (e) {
+        console.error(e);
+      });
+    });
+
+      $(".stop").click (function () {
+        scanner.stop();
+      })
+
+    </script>
+
+<script type="text/javascript">
+      let scanner1 = new Instascan.Scanner({ video: document.getElementById('preview1') });
+      scanner1.addListener('scan', function (content) {
+        console.log(content);
+        var CCC1 = content.substring(9);
+        if (web3.isAddress(CCC1) == true) {
+            document.getElementById("addressClient").value = content.substring(9);
+            scanner1.stop();
+        }
+      });
+      
+      $(".start1").click (function() {
+      Instascan.Camera.getCameras().then(function (cameras) {
+        if (cameras.length > 0) {
+          scanner1.start(cameras[0]);
+        } else {
+          console.error('No cameras found.');
+        }
+      }).catch(function (e) {
+        console.error(e);
+      });
+    });
+
+      $(".stop1").click (function () {
+        scanner1.stop();
+      })
+
+    </script>
+
+
+</body>
+</html>
+
+
